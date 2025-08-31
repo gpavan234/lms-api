@@ -10,6 +10,7 @@ import courseRoutes from './routes/courseRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import enrollmentRoutes from './routes/enrollmentRoutes.js';
 import progressRoutes from './routes/progressRoutes.js';
+import quizRoutes from './routes/quizRoutes.js';
 
 dotenv.config();
 connectDB();
@@ -27,6 +28,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/progress', progressRoutes);
+app.use('/api/quizzes', quizRoutes);
 
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'LMS API is running 🚀' });
