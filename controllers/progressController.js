@@ -53,3 +53,20 @@ export const getProgress = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getUserProgress = async (req, res) => {
+  try {
+    const attempts = await QuizAttempt.find({ user: req.user._id })
+      .populate('quiz', 'title');
+
+    const totalScore = attempts.reduce((acc, item) => acc + item.score, 0);
+
+    res.json({
+      totalQuizzes: attempts.length,
+      totalScore,
+      attempts
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
