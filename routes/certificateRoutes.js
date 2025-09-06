@@ -1,6 +1,6 @@
 import express from 'express';
 import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
-import { issueCertificate, getMyCertificates, verifyCertificate } from '../controllers/certificateController.js';
+import { issueCertificate, getMyCertificates, verifyCertificate,  generateCertificate } from '../controllers/certificateController.js';
 
 const router = express.Router();
 
@@ -12,5 +12,6 @@ router.get('/my', protect, authorizeRoles('admin'), getMyCertificates);
 
 // Public verify certificate by certificateId
 router.get('/verify/:id', verifyCertificate);
+router.post("/generate", protect, generateCertificate);
 
 export default router;

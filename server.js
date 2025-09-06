@@ -14,6 +14,8 @@ import quizRoutes from './routes/quizRoutes.js';
 import certificateRoutes from './routes/certificateRoutes.js';
 import leaderboardRoutes from './routes/leaderboardRoutes.js';
 
+import path from "path";
+
 dotenv.config();
 connectDB();
 
@@ -31,8 +33,10 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/quizzes', quizRoutes);
-app.use('/api/certificates', certificateRoutes);
+app.use("/api/certificates", certificateRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
+
+app.use("/certificates", express.static(path.join(process.cwd(), "certificates")));
 
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'LMS API is running 🚀' });

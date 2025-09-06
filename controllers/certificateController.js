@@ -1,6 +1,9 @@
 import Certificate from '../models/certificate.js';
 import Course from '../models/course.js';
 import { generateCertificateId } from '../utils/generateCertificateId.js';
+import path from "path";
+import fs from "fs";
+import PDFDocument from "pdfkit";
 
 // Issue certificate
 export const issueCertificate = async (req, res, next) => {
@@ -57,5 +60,43 @@ export const verifyCertificate = async (req, res, next) => {
     res.json(cert);
   } catch (err) {
     next(err);
+  }
+};
+
+export const generateCertificate = async (req, res) => {
+  try {
+    const { courseId } = req.body;
+
+    // Unique file name
+    const certificateId = `${Date.now()}.pdf`;
+
+    // Path to sample PDF
+    const sampleFile = path.join(process.cwd(), "certificates", "sample.pdf");
+
+    console.log("Sample file path:", sampleFile);
+
+    // Check if sample PDF exists
+    if (!fs.existsSync(sampleFile)) {
+      console.error("Sample PDF not found!");
+      return res.status(500).json({ message: "Sample PDF not found" });
+    }
+
+    // Destination path
+    const filePath = path.join(process.cwd(), "certificates", certificateId);
+    console.log("Destination file path:", filePath);
+
+    // Copy file
+    fs.copyFileSync(sampleFile, filePath);
+
+    // Send for download
+    res.download(filePath, "certificate.pdf", (err) => {
+      if (err) {
+        console.error("Download error:", err);
+        res.status(500).json({ message: "Certificate generation failed" });
+      }
+    });
+  } catch (error) {
+    console.error("Catch error:", error);
+    res.status(500).json({ message: "Certificate generation failed" });
   }
 };
