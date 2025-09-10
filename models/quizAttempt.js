@@ -24,6 +24,7 @@ const quizAttemptSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+    description: { type: String },
   },
   { timestamps: true }
 );

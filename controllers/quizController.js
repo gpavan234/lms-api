@@ -1,14 +1,15 @@
-import Quiz from '../models/quiz.js';
-import QuizAttempt from '../models/quizAttempt.js';
+import Quiz from "../models/quiz.js";
+import QuizAttempt from "../models/quizAttempt.js";
 
 // Create quiz (Instructor only)
 export const createQuiz = async (req, res, next) => {
   try {
-    const { title, questions, courseId } = req.body;
+    const { title, questions, courseId, description } = req.body;
 
     const quiz = await Quiz.create({
       course: courseId,
       instructor: req.user._id,
+      description,   // ✅ correct
       title,
       questions,
     });
@@ -19,11 +20,21 @@ export const createQuiz = async (req, res, next) => {
   }
 };
 
-// Get quiz (student + instructor)
+// ✅ Get all quizzes (student + instructor)
+export const getQuizzes = async (req, res, next) => {
+  try {
+    const quizzes = await Quiz.find().populate("course", "title");
+    res.json(quizzes);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Get single quiz
 export const getQuiz = async (req, res, next) => {
   try {
-    const quiz = await Quiz.findById(req.params.id).populate('course', 'title');
-    if (!quiz) return res.status(404).json({ message: 'Quiz not found' });
+    const quiz = await Quiz.findById(req.params.id).populate("course", "title");
+    if (!quiz) return res.status(404).json({ message: "Quiz not found" });
 
     res.json(quiz);
   } catch (err) {
@@ -37,11 +48,11 @@ export const submitQuiz = async (req, res, next) => {
     const { answers } = req.body;
     const quiz = await Quiz.findById(req.params.id);
 
-    if (!quiz) return res.status(404).json({ message: 'Quiz not found' });
+    if (!quiz) return res.status(404).json({ message: "Quiz not found" });
 
     // Score calculation
     let score = 0;
-    answers.forEach((ans, index) => {
+    answers.forEach((ans) => {
       if (quiz.questions[ans.questionId]?.correctAnswer === ans.selectedOption) {
         score++;
       }
@@ -64,7 +75,7 @@ export const submitQuiz = async (req, res, next) => {
 // Get student quiz attempts
 export const getQuizAttempts = async (req, res, next) => {
   try {
-    const attempts = await QuizAttempt.find({ student: req.user._id }).populate('quiz', 'title');
+    const attempts = await QuizAttempt.find({ student: req.user._id }).populate("quiz", "title");
     res.json(attempts);
   } catch (err) {
     next(err);
