@@ -31,8 +31,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
-app.use('/api/progress', progressRoutes);
-app.use('/api/quizzes', quizRoutes);
+app.use("/api/quizzes", quizRoutes);
 app.use("/api/certificates", certificateRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 

@@ -1,20 +1,32 @@
 import express from "express";
-import { protect } from "../middleware/authMiddleware.js";
 import {
   createQuiz,
   getQuizzes,
   getQuiz,
+  updateQuiz,
   submitQuiz,
   getQuizAttempts,
 } from "../controllers/quizController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Routes
-router.post("/", protect, createQuiz);          // instructor create
-router.get("/", protect, getQuizzes);           // ✅ all users can view
-router.get("/:id", protect, getQuiz);           // view single quiz
-router.post("/:id/submit", protect, submitQuiz); // student submit
-router.get("/attempts/me", protect, getQuizAttempts); // student attempts
+// Instructor creates quiz
+router.post("/", protect, createQuiz);
+
+// Get all quizzes
+router.get("/", protect, getQuizzes);
+
+// Get single quiz
+router.get("/:id", protect, getQuiz);
+
+// Update quiz
+router.put("/:id", protect, updateQuiz);
+
+// Submit quiz
+router.post("/:id/submit", protect, submitQuiz);
+
+// Get quiz attempts (student)
+router.get("/attempts/me", protect, getQuizAttempts);
 
 export default router;
