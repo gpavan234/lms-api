@@ -1,7 +1,25 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import asyncHandler from "express-async-handler";
 
-export const protect = async (req, res, next) => {
+// middleware/roleMiddleware.js
+export const authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    next();
+  };
+};
+
+
+
+export const protect = asyncHandler(async (req, res, next) => {
   let token;
   if (
     req.headers.authorization &&
@@ -13,22 +31,23 @@ export const protect = async (req, res, next) => {
       req.user = await User.findById(decoded.id).select("-password");
       next();
     } catch (error) {
-      res.status(401).json({ message: "Not authorized, token failed" });
+      res.status(401);
+      throw new Error("Not authorized, token failed");
     }
   }
 
   if (!token) {
-    res.status(401).json({ message: "Not authorized, no token" });
+    res.status(401);
+    throw new Error("Not authorized, no token");
   }
-};
+});
 
-
-export const authorizeRoles = (...allowed) => {
-  return (req, res, next) => {
-    if (!req.user) return res.status(401).json({ message: 'Not authorized' });
-    if (!allowed.includes(req.user.role)) {
-      return res.status(403).json({ message: 'Forbidden: insufficient role' });
-    }
+// Admin middleware
+export const admin = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
     next();
-  };
+  } else {
+    res.status(403);
+    throw new Error("Admin access only");
+  }
 };

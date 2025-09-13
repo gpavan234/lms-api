@@ -113,4 +113,26 @@ export const updateUserProfile = async (req, res) => {
   }
 };
 
+export const createInstructor = asyncHandler(async (req, res) => {
+  const { name, email, password } = req.body;
 
+  const exists = await User.findOne({ email });
+  if (exists) return res.status(400).json({ message: "Instructor already exists" });
+
+  const instructor = await User.create({
+    name,
+    email,
+    password, // will be hashed by pre-save hook
+    role: "instructor",
+  });
+
+  res.status(201).json({
+    message: "Instructor created successfully",
+    instructor: {
+      id: instructor._id,
+      name: instructor.name,
+      email: instructor.email,
+      role: instructor.role,
+    },
+  });
+});

@@ -52,14 +52,18 @@ export const updateQuiz = async (req, res, next) => {
 
     const quiz = await Quiz.findById(req.params.id);
 
-    if (!quiz) {
-      return res.status(404).json({ message: "Quiz not found" });
+    if (!quiz) return res.status(404).json({ message: "Quiz not found" });
+
+    // ✅ Check if the logged-in user is the instructor
+    if (quiz.instructor.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "You are not allowed to update this quiz" });
     }
 
+    // update fields
     quiz.title = title || quiz.title;
-    quiz.questions = questions || quiz.questions;
-    quiz.course = courseId || quiz.course;
     quiz.description = description || quiz.description;
+    quiz.course = courseId || quiz.course;
+    quiz.questions = questions || quiz.questions;
 
     const updatedQuiz = await quiz.save();
     res.json(updatedQuiz);
@@ -69,6 +73,8 @@ export const updateQuiz = async (req, res, next) => {
 };
 
 // ✅ Submit quiz attempt (Student)
+// controllers/quizController.js
+
 export const submitQuiz = async (req, res, next) => {
   try {
     const { answers } = req.body;
@@ -77,25 +83,42 @@ export const submitQuiz = async (req, res, next) => {
     if (!quiz) return res.status(404).json({ message: "Quiz not found" });
 
     let score = 0;
+
     answers.forEach((ans) => {
-      if (quiz.questions[ans.questionId]?.correctAnswer === ans.selectedOption) {
+      // Find question either by array index or ObjectId
+      const question =
+        quiz.questions[ans.questionId] ||
+        quiz.questions.id(ans.questionId);
+
+      if (question && question.correctAnswer === ans.selectedOption) {
         score++;
       }
     });
 
+    // ✅ Create attempt with student if logged in
     const attempt = await QuizAttempt.create({
       quiz: quiz._id,
-      student: req.user._id,
+      student: req.user?._id || null, // <-- saves user ID if available
       answers,
       score,
       completed: true,
     });
 
-    res.status(201).json({ attempt, totalQuestions: quiz.questions.length });
+    res.status(201).json({
+      message: "Quiz submitted successfully",
+      attempt,
+      totalQuestions: quiz.questions.length,
+      score,
+    });
   } catch (err) {
-    next(err);
+    console.error("Submit quiz error:", err);
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: err.message });
   }
 };
+
+
 
 // ✅ Get quiz attempts by student
 export const getQuizAttempts = async (req, res, next) => {
