@@ -1,5 +1,5 @@
 import Certificate from '../models/certificate.js';
-import Course from '../models/course.js';
+import Course from '../models/Course.js';
 import { generateCertificateId } from '../utils/generateCertificateId.js';
 import path from "path";
 import fs from "fs";

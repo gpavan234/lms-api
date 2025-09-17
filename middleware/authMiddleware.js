@@ -43,11 +43,21 @@ export const protect = asyncHandler(async (req, res, next) => {
 });
 
 // Admin middleware
+
+
+// middleware/authMiddleware.js
+export const instructor = (req, res, next) => {
+  if (req.user && req.user.role === "instructor") {
+    next();
+  } else {
+    res.status(403).json({ message: "Access denied, instructor only" });
+  }
+};
+
 export const admin = (req, res, next) => {
   if (req.user && req.user.role === "admin") {
     next();
   } else {
-    res.status(403);
-    throw new Error("Admin access only");
+    res.status(403).json({ message: "Access denied, admin only" });
   }
 };

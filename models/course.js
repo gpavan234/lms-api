@@ -1,17 +1,17 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const courseSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true, trim: true, unique: true },
-    description: { type: String, required: true },
-    instructor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    category: { type: String, trim: true },
-    price: { type: Number, default: 0 },
-    published: { type: Boolean, default: false },
-    // room for future: thumbnail, sections, lectures, tags, level, language, etc.
-  },
-  { timestamps: true }
-);
+const courseSchema = new mongoose.Schema({
+  title: String,
+  description: String,
+  category: String,
+  price: Number,
+  instructor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  }
+});
 
-const Course = mongoose.model('Course', courseSchema);
+// Prevent OverwriteModelError
+const Course = mongoose.models.Course || mongoose.model("Course", courseSchema);
+
 export default Course;

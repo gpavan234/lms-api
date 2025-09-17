@@ -1,5 +1,5 @@
 import Enrollment from '../models/enrollment.js';
-import Course from '../models/course.js';
+import Course from "../models/course.js";
 
 // @desc Enroll student in a course
 // POST /api/enrollments/:courseId
