@@ -47,10 +47,11 @@ export const protect = asyncHandler(async (req, res, next) => {
 
 // middleware/authMiddleware.js
 export const instructor = (req, res, next) => {
-  if (req.user && req.user.role === "instructor") {
+  if (req.user && (req.user.role === "instructor" || req.user.role === "admin")) {
     next();
   } else {
-    res.status(403).json({ message: "Access denied, instructor only" });
+    res.status(403);
+    throw new Error("Not authorized as instructor");
   }
 };
 
