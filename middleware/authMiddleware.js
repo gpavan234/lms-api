@@ -56,9 +56,20 @@ export const instructor = (req, res, next) => {
 };
 
 export const admin = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
+if (
+  req.user.role !== "admin" &&
+  course.instructor.toString() !== req.user._id.toString()
+) {
+  return res.status(403).json({ message: "Not authorized" });
+}
+
+};
+
+export const student = (req, res, next) => {
+  if (req.user && req.user.role === "student") {
     next();
   } else {
-    res.status(403).json({ message: "Access denied, admin only" });
+    res.status(403);
+    throw new Error("Not authorized as student");
   }
 };

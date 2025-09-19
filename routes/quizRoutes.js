@@ -9,7 +9,7 @@ import {
   getQuizAttempts,
 } from "../controllers/quizController.js";
 
-import { protect,authorizeRoles, instructor } from "../middleware/authMiddleware.js";
+import { protect,authorizeRoles, instructor, student } from "../middleware/authMiddleware.js";
 
 
 const router = express.Router();  
@@ -23,7 +23,7 @@ router.post("/", protect, instructor, createQuiz);
 router.put("/:id", protect, authorizeRoles("instructor", "admin"), updateQuiz);
 
 // ✅ Student only
-router.post("/:id/submit", protect, authorizeRoles("student"), submitQuiz);
+router.post("/:id/submit", protect, submitQuiz);
 router.get("/attempts", protect, authorizeRoles("student"), getQuizAttempts);
 
 export default router;

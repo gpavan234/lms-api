@@ -4,22 +4,22 @@ import Course from "../models/course.js";
 // @desc    Create a new course (Instructor/Admin only)
 // @route   POST /api/courses
 // @access  Private
-export const createCourse = asyncHandler(async (req, res) => {
-  const { title, description } = req.body;
+export const createCourse = async (req, res, next) => {
+  try {
+    const { title, description } = req.body;
 
-  if (!req.user) {
-    res.status(401);
-    throw new Error("Not authorized");
+    const course = await Course.create({
+      title,
+      description,
+      instructor: req.user._id, // ✅ assign logged in instructor
+    });
+
+    res.status(201).json(course);
+  } catch (err) {
+    next(err);
   }
+};
 
-  const course = await Course.create({
-    title,
-    description,
-    instructor: req.user._id,
-  });
-
-  res.status(201).json(course);
-});
 
 // @desc    Get all courses
 // @route   GET /api/courses
@@ -42,3 +42,46 @@ export const getCourse = asyncHandler(async (req, res) => {
 
   res.json(course);
 });
+
+
+export const getCourseById = async (req, res, next) => {
+  try {
+    const course = await Course.findById(req.params.id);
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+    res.json(course);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc Update course
+// PUT /api/courses/:id
+// Private (instructor)
+export const updateCourse = async (req, res, next) => {
+  try {
+    const { title, description } = req.body;
+    const course = await Course.findById(req.params.id);
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    // only the instructor or admin can update
+    if (
+      req.user.role !== "admin" &&
+      course.instructor.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    course.title = title || course.title;
+    course.description = description || course.description;
+
+    const updatedCourse = await course.save();
+    res.json(updatedCourse);
+  } catch (err) {
+    next(err);
+  }
+};

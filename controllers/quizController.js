@@ -4,10 +4,10 @@ import QuizAttempt from "../models/quizAttempt.js";
 // ✅ Create quiz (Instructor only)
 export const createQuiz = async (req, res, next) => {
   try {
-    const { title, questions, courseId, description } = req.body;
+    const { title, questions, course, description } = req.body;
 
     const quiz = await Quiz.create({
-      course: courseId,
+      course: course,
       instructor: req.user._id,
       description,
       title,
